@@ -1,3 +1,4 @@
+from config import STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET
 from main import app
 
 
