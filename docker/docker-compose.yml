@@ -2,6 +2,7 @@ version: '3.7'
 
 services:
   app:
+    image: fastapi-test
     container_name: fastapi-test
     build:
       context: ..

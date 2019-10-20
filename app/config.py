@@ -5,3 +5,4 @@ config = Config(".env")
 
 STRAVA_CLIENT_ID = config('STRAVA_CLIENT_ID', cast=int)
 STRAVA_CLIENT_SECRET = config('STRAVA_CLIENT_SECRET', cast=Secret)
+APP_URL = config('APP_URL')
