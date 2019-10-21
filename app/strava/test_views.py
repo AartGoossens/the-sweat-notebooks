@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import pytest
 from starlette.testclient import TestClient
 
@@ -49,6 +50,36 @@ class TestStravaViews:
             client_id=STRAVA_CLIENT_ID,
             client_secret=STRAVA_CLIENT_SECRET,
             code='some code')
+
+    def test_strava_create_subscription(self, test_client, mocker):
+        m = mocker.patch('stravalib.Client.create_subscription')
+
+        response = test_client.post(url='/strava/subscription')
+
+        assert response.status_code == 200
+        m.assert_called_once_with(
+            client_id=STRAVA_CLIENT_ID,
+            client_secret=STRAVA_CLIENT_SECRET,
+            callback_url='http://localhost:8000/strava/webhook',
+            verify_token='some verify token')
+
+    def test_strava_delete_subscription(self, test_client, mocker):
+        mocked_list = mocker.patch('stravalib.Client.list_subscriptions')
+
+        @dataclass
+        class MockedSubscription:
+            id: int
+
+        mocked_delete = mocker.patch('stravalib.Client.delete_subscription')
+        mocked_delete.return_value = [MockedSubscription(i) for i in range(2)]
+
+        response = test_client.delete(url='/strava/subscription')
+
+        assert response.status_code == 200
+        mocked_list.assert_called_once_with(
+            client_id=STRAVA_CLIENT_ID,
+            client_secret=STRAVA_CLIENT_SECRET)
+        mocked_list.call_count == 3
 
     def test_strava_webhook(self, test_client):
         response = test_client.post(

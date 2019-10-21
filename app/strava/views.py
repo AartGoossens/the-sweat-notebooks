@@ -7,7 +7,7 @@ from main import app
 from strava.schemas import Event
 
 
-@app.get("/strava/login")
+@app.get('/strava/login')
 def strava_login():
     client = Client()
     authorize_url = client.authorization_url(
@@ -17,18 +17,50 @@ def strava_login():
     return RedirectResponse(authorize_url)
 
 
-@app.get("/strava/callback")
+@app.get('/strava/callback')
 def strava_callback(code: str, scope: str, state: str = None):
     client = Client()
-    token_response = client.exchange_code_for_token(
+    response = client.exchange_code_for_token(
         client_id=STRAVA_CLIENT_ID,
         client_secret=STRAVA_CLIENT_SECRET,
         code=code)
+    
+    return response
 
-    return token_response
+
+@app.post('/strava/subscription')
+def strava_create_subscription():
+    client = Client()
+    
+    response = client.create_subscription(
+        client_id=STRAVA_CLIENT_ID,
+        client_secret=STRAVA_CLIENT_SECRET,
+        callback_url=f'{APP_URL}/strava/webhook',
+        verify_token='some verify token')
+
+    return response
 
 
-@app.get("/strava/webhook")
+@app.delete('/strava/subscription')
+def strava_delete_subscription():
+    client = Client()
+
+    subscriptions = client.list_subscriptions(
+        client_id=STRAVA_CLIENT_ID,
+        client_secret=STRAVA_CLIENT_SECRET)
+
+    i = 0
+    for subscription in subscriptions:
+        client.delete_subscription(
+            subscription_id=subscription.id,
+            client_id=STRAVA_CLIENT_ID,
+            client_secret=STRAVA_CLIENT_SECRET)
+        i += 1
+    
+    return {'message': f'deleted {i} subscriptions'}
+
+
+@app.get('/strava/webhook')
 def strava_webhook_validation(request: Request):
     '''
     So Strava is fucking around with query param standards in a way that FastAPI cannot handle them natively.
@@ -42,6 +74,6 @@ def strava_webhook_validation(request: Request):
     return {'hub.challenge': hub_challenge}
 
 
-@app.post("/strava/webhook")
+@app.post('/strava/webhook')
 def strava_webhook(event: Event):
     return {'message': 'ok'}
