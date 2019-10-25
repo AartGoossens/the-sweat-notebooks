@@ -1,11 +1,13 @@
 from datetime import datetime
 
+from fastapi import BackgroundTasks
 from starlette.responses import RedirectResponse
 from starlette.requests import Request
 from stravalib import Client, exc as stravalib_exceptions
 
 from config import APP_URL, STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET
 from main import app
+from strava import tasks
 from strava.schemas import Event
 from strava.models import StravaAthlete
 from strava.utils import refresh_access_token
@@ -87,7 +89,8 @@ def strava_webhook_validation(request: Request):
 
 
 @app.post('/strava/webhook')
-def strava_webhook(event: Event):
+def strava_webhook(event: Event, background_task: BackgroundTasks):
+    background_task.add_task(tasks.handle_new_event, event)
     return {'message': 'ok'}
 
 
@@ -114,6 +117,7 @@ async def delete_strava_athletes(strava_athlete_id: int):
         client.deauthorize()
     except stravalib_exceptions.AccessUnauthorized:
         strava_athlete = await refresh_access_token(strava_athlete)
+        client = Client(strava_athlete.access_token)
         client.deauthorize()
 
     await strava_athlete.delete()

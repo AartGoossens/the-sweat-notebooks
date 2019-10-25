@@ -1,3 +1,4 @@
+from datetime import datetime
 from stravalib import Client
 
 from config import STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET

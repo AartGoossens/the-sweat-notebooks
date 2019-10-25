@@ -18,6 +18,9 @@ sqlalchemy = "*"
 typesystem = "*"
 orm = "~=0.1"
 databases = {extras = ["sqlite"],version = "*"}
+papermill = "*"
+ipykernel = "*"
+nbconvert = "*"
 
 [requires]
 python_version = "3.7"
