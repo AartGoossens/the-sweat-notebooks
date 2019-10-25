@@ -139,12 +139,43 @@ class TestStravaViews:
         assert response.status_code == 200
         assert response.json() == {'hub.challenge': 'some hub challenge'}
 
-    def test_list_strava_athletes(self):
-        pass
+    def test_list_strava_athletes(self, test_client):
+        response = test_client.get('/strava/athletes')
+        
+        athletes = response.json()
 
-    def test_get_strava_athlete(self):
-        pass
+        assert len(athletes) == 5
+        athlete = athletes[0]
+        assert 'id' in athlete
+        assert 'access_token' in athlete
+        assert 'refresh_token' in athlete
+        assert 'token_expiration_datetime' in athlete
+
+    def test_get_strava_athlete(self, test_client):
+        response = test_client.get('/strava/athletes/1')
+        
+        athlete = response.json()
+
+        assert athlete['id'] == 1
+        assert athlete['access_token'] == 'some access token'
+        assert athlete['refresh_token'] == 'some refresh token'
+        assert 'token_expiration_datetime' in athlete
 
     @pytest.mark.asyncio
-    async def test_delete_strava_athlete(self):
-        assert 1 == 1
+    async def test_delete_strava_athlete(self, test_client, mocker):
+        mocked_deauthorize = mocker.patch('stravalib.Client.deauthorize')
+
+        assert await StravaAthlete.objects.count() == 5
+
+        response = test_client.delete('/strava/athletes/1')
+
+        athlete = response.json()
+
+        assert athlete['id'] == 1
+        assert athlete['access_token'] == 'some access token'
+        assert athlete['refresh_token'] == 'some refresh token'
+        assert 'token_expiration_datetime' in athlete
+
+        assert await StravaAthlete.objects.count() == 4
+
+        mocked_deauthorize.assert_called_once()
