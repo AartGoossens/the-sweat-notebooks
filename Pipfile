@@ -12,6 +12,10 @@ fastapi = "*"
 uvicorn = "*"
 stravalib = "*"
 pytest-mock = "*"
+sqlalchemy = "*"
+typesystem = "*"
+orm = "~=0.1"
+databases = {extras = ["sqlite"],version = "*"}
 
 [requires]
 python_version = "3.7"

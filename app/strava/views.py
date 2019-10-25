@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from starlette.responses import RedirectResponse
 from starlette.requests import Request
 from stravalib import Client
@@ -5,6 +7,7 @@ from stravalib import Client
 from config import APP_URL, STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET
 from main import app
 from strava.schemas import Event
+from strava.models import StravaAthlete
 
 
 @app.get('/strava/login')
@@ -18,14 +21,22 @@ def strava_login():
 
 
 @app.get('/strava/callback')
-def strava_callback(code: str, scope: str, state: str = None):
+async def strava_callback(code: str, scope: str, state: str = None):
     client = Client()
     response = client.exchange_code_for_token(
-        client_id=STRAVA_CLIENT_ID,
-        client_secret=STRAVA_CLIENT_SECRET,
+        client_id=STRAVA_CLIENT_ID, client_secret=STRAVA_CLIENT_SECRET,
         code=code)
+
+    client = Client(access_token=response['access_token'])
+    athlete = client.get_athlete()
     
-    return response
+    await StravaAthlete.objects.create(
+        id=athlete.id,
+        access_token=response['access_token'],
+        refresh_token=response['refresh_token'],
+        token_expiration_datetime=datetime.utcfromtimestamp(response['expires_at']).isoformat())
+    
+    return {'message': f'Athlete with id {athlete.id} created'}
 
 
 @app.post('/strava/subscription')
@@ -77,3 +88,29 @@ def strava_webhook_validation(request: Request):
 @app.post('/strava/webhook')
 def strava_webhook(event: Event):
     return {'message': 'ok'}
+
+
+@app.get('/strava/athletes')
+async def list_strava_athletes():
+    strava_athletes = await StravaAthlete.objects.all()
+
+    return strava_athletes
+
+
+@app.get('/strava/athletes/{strava_athlete_id}')
+async def get_strava_athletes(strava_athlete_id: int):
+    strava_athlete = await StravaAthlete.objects.get(id=strava_athlete_id)
+
+    return strava_athlete
+
+
+@app.delete('/strava/athletes/{strava_athlete_id}')
+async def delete_strava_athletes(strava_athlete_id: int):
+    strava_athlete = await StravaAthlete.objects.get(id=strava_athlete_id)
+
+    client = Client(strava_athlete.id)
+    client.deauthorize()
+
+    await strava_athlete.delete()
+
+    return strava_athlete

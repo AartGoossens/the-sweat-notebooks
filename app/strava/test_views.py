@@ -25,12 +25,23 @@ class TestStravaViews:
         )
 
     def test_strava_callback(self, test_client, mocker):
-        m = mocker.patch('stravalib.Client.exchange_code_for_token')
-        m.return_value = {
+        mocked_exchange_code_for_token = mocker.patch('stravalib.Client.exchange_code_for_token')
+        mocked_exchange_code_for_token.return_value = {
             'access_token': 'some access token',
             'refresh_token': 'some refresh token',
             'expires_at':13371337
         }
+
+        @dataclass
+        class StravaAthleteResponse:
+            id: int
+
+        mocked_get_athlete = mocker.patch('stravalib.Client.get_athlete')
+        mocked_get_athlete.return_value = StravaAthleteResponse(id=1337)
+
+        # pytest-asyncio doesn't work so I cannot create async test functions.
+        # A workaround to get the count of db items is to call another endpoint.
+        strava_athletes_count = len(test_client.get('/strava/athletes').json())
 
         response = test_client.get(
             url='/strava/callback',
@@ -42,14 +53,18 @@ class TestStravaViews:
 
         assert response.status_code == 200
         assert response.json() == {
-            'access_token': 'some access token',
-            'refresh_token': 'some refresh token',
-            'expires_at':13371337
+            'message': 'Athlete with id 1337 created'
         }
-        m.assert_called_once_with(
+        mocked_exchange_code_for_token.assert_called_once_with(
             client_id=STRAVA_CLIENT_ID,
             client_secret=STRAVA_CLIENT_SECRET,
             code='some code')
+
+        mocked_get_athlete.assert_called_once()
+
+        assert strava_athletes_count + 1 == \
+            len(test_client.get('/strava/athletes').json())
+
 
     def test_strava_create_subscription(self, test_client, mocker):
         m = mocker.patch('stravalib.Client.create_subscription')
@@ -124,3 +139,12 @@ class TestStravaViews:
         
         assert response.status_code == 200
         assert response.json() == {'hub.challenge': 'some hub challenge'}
+
+    def test_list_strava_athletes(self):
+        pass
+
+    def test_get_strava_athlete(self):
+        pass
+
+    def test_delete_strava_athlete(self):
+        pass
