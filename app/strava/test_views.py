@@ -4,6 +4,7 @@ from starlette.testclient import TestClient
 
 from config import STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET
 from server import app
+from strava.models import StravaAthlete
 
 
 class TestStravaViews:
@@ -24,7 +25,8 @@ class TestStravaViews:
             'scope=read%2Cactivity%3Aread'
         )
 
-    def test_strava_callback(self, test_client, mocker):
+    @pytest.mark.asyncio
+    async def test_strava_callback(self, test_client, mocker):
         mocked_exchange_code_for_token = mocker.patch('stravalib.Client.exchange_code_for_token')
         mocked_exchange_code_for_token.return_value = {
             'access_token': 'some access token',
@@ -39,9 +41,7 @@ class TestStravaViews:
         mocked_get_athlete = mocker.patch('stravalib.Client.get_athlete')
         mocked_get_athlete.return_value = StravaAthleteResponse(id=1337)
 
-        # pytest-asyncio doesn't work so I cannot create async test functions.
-        # A workaround to get the count of db items is to call another endpoint.
-        strava_athletes_count = len(test_client.get('/strava/athletes').json())
+        strava_athletes_count = await StravaAthlete.objects.count()
 
         response = test_client.get(
             url='/strava/callback',
@@ -62,8 +62,7 @@ class TestStravaViews:
 
         mocked_get_athlete.assert_called_once()
 
-        assert strava_athletes_count + 1 == \
-            len(test_client.get('/strava/athletes').json())
+        assert strava_athletes_count + 1 == await StravaAthlete.objects.count()
 
 
     def test_strava_create_subscription(self, test_client, mocker):
@@ -146,5 +145,6 @@ class TestStravaViews:
     def test_get_strava_athlete(self):
         pass
 
-    def test_delete_strava_athlete(self):
-        pass
+    @pytest.mark.asyncio
+    async def test_delete_strava_athlete(self):
+        assert 1 == 1
