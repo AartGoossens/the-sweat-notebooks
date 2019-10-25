@@ -2,12 +2,13 @@ from datetime import datetime
 
 from starlette.responses import RedirectResponse
 from starlette.requests import Request
-from stravalib import Client
+from stravalib import Client, exc as stravalib_exceptions
 
 from config import APP_URL, STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET
 from main import app
 from strava.schemas import Event
 from strava.models import StravaAthlete
+from strava.utils import refresh_access_token
 
 
 @app.get('/strava/login')
@@ -108,8 +109,12 @@ async def get_strava_athletes(strava_athlete_id: int):
 async def delete_strava_athletes(strava_athlete_id: int):
     strava_athlete = await StravaAthlete.objects.get(id=strava_athlete_id)
 
-    client = Client(strava_athlete.id)
-    client.deauthorize()
+    client = Client(strava_athlete.access_token)
+    try:
+        client.deauthorize()
+    except stravalib_exceptions.AccessUnauthorized:
+        strava_athlete = await refresh_access_token(strava_athlete)
+        client.deauthorize()
 
     await strava_athlete.delete()
 
