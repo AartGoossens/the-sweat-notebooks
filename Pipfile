@@ -6,6 +6,8 @@ verify_ssl = true
 [dev-packages]
 requests = "*"
 pytest = "*"
+pytest-asyncio = "*"
+nest-asyncio = "*"
 
 [packages]
 fastapi = "*"
