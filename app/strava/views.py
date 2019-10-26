@@ -5,11 +5,11 @@ from starlette.responses import RedirectResponse
 from starlette.requests import Request
 from stravalib import Client, exc as stravalib_exceptions
 
+import tasks
 from config import APP_URL, STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET
 from main import app
-from strava import tasks
-from strava.schemas import Event
 from strava.models import StravaAthlete
+from strava.schemas import Event
 from strava.utils import refresh_access_token
 
 

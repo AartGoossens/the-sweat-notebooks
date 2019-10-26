@@ -95,7 +95,8 @@ class TestStravaViews:
             client_secret=STRAVA_CLIENT_SECRET)
         mocked_list.call_count == 3
 
-    def test_strava_webhook(self, test_client):
+    def test_strava_webhook(self, test_client, mocker):
+        m = mocker.patch('tasks.handle_new_event')
         response = test_client.post(
             '/strava/webhook',
             json={
@@ -103,7 +104,7 @@ class TestStravaViews:
                 'event_time': 1516126040,
                 'object_id': 1360128428,
                 'object_type': 'activity',
-                'owner_id': 134815,
+                'owner_id': 2,
                 'subscription_id': 120475,
                 'updates': {
                     'title': 'Messy'
@@ -113,6 +114,7 @@ class TestStravaViews:
         
         assert response.status_code == 200
         assert response.json() == {'message': 'ok'}
+        m.assert_called_once()
 
     def test_strava_webhook_validation(self, test_client):
         response = test_client.get(

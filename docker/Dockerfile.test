@@ -2,7 +2,7 @@ FROM python:3.7
 
 ENV PYTHONDONTWRITEBYTECODE=1
 
-RUN mkdir /data
+RUN mkdir -p /data/output
 
 RUN pip install --upgrade pip
 RUN pip install pipenv

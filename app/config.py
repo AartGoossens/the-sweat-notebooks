@@ -14,3 +14,8 @@ DATABASE_URL = f'sqlite:///{DATABASE_PATH}'
 
 database = databases.Database(DATABASE_URL)
 metadata = sqlalchemy.MetaData()
+
+
+NOTEBOOK_TEMPLATES_PATH = config('NOTEBOOK_TEMPLATES_PATH')
+NOTEBOOK_TEMPLATE_NAME = config('NOTEBOOK_TEMPLATE_NAME')
+REPORT_OUTPUT_DIR = config('REPORT_OUTPUT_DIR')

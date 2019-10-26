@@ -1,23 +1,24 @@
 import json
+from pathlib import Path
 
 import nbformat
 import papermill as pm
 from nbconvert import HTMLExporter
+
 from strava.models import StravaAthlete
+from config import (
+    NOTEBOOK_TEMPLATE_NAME, NOTEBOOK_TEMPLATES_PATH, REPORT_OUTPUT_DIR
+)
 
 
 async def handle_new_event(event):
     athlete = await StravaAthlete.objects.get(id=event.owner_id)
 
+    input_path = f'{NOTEBOOK_TEMPLATES_PATH}{NOTEBOOK_TEMPLATE_NAME}.ipynb'
+    output_dir = Path(f'{REPORT_OUTPUT_DIR}{athlete.id}').mkdir(exist_ok=True)
+    output_path = f'{REPORT_OUTPUT_DIR}{athlete.id}/{event.object_id}-{NOTEBOOK_TEMPLATE_NAME}.ipynb'
 
-    templates_path = '/data/templates/'
-    template_name = 'parametrized_notebook'
-    output_dir = '/data/output/'
-
-
-    input_path = f'{templates_path}{template_name}.ipynb'
-    output_path = f'{output_dir}{athlete.id}/{event.object_id}-{template_name}.ipynb'
-
+    # @TODO pass Strava activity detail, activity stream and athlete json as parameters
     pm.execute_notebook(
         input_path=input_path,
         output_path=output_path,
@@ -33,5 +34,5 @@ async def handle_new_event(event):
     html_exporter.template_file = 'basic'
     body, _ = html_exporter.from_notebook_node(notebook)
 
-    with open(f'{output_dir}{athlete.id}/{event.object_id}-{template_name}.html', 'w') as f:
+    with open(f'{REPORT_OUTPUT_DIR}{athlete.id}/{event.object_id}-{NOTEBOOK_TEMPLATE_NAME}.html', 'w') as f:
         f.write(body)

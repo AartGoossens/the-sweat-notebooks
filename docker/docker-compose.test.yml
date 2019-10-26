@@ -9,3 +9,4 @@ services:
       dockerfile: docker/Dockerfile.test
     volumes:
       - ..:/app
+      - ../templates:/data/templates
