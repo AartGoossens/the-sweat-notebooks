@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% set title = "Report list for athlete " ~ athlete_id %}
+{% block content %}
+<ul>
+{% for report in reports %}
+    <li>
+        <a href="/reports/{{ athlete_id }}/{{ report }}">{{ report }}</a>
+    </li>
+{% endfor %}
+</ul>
+{% endblock %}

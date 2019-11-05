@@ -23,6 +23,7 @@ databases = {extras = ["sqlite"],version = "*"}
 papermill = "*"
 ipykernel = "*"
 nbconvert = "*"
+jinja2 = "*"
 
 [requires]
 python_version = "3.7"

@@ -2,6 +2,7 @@ import databases
 import sqlalchemy
 from starlette.config import Config
 from starlette.datastructures import CommaSeparatedStrings, Secret
+from starlette.templating import Jinja2Templates
 
 config = Config(".env")
 
@@ -19,3 +20,6 @@ metadata = sqlalchemy.MetaData()
 NOTEBOOK_TEMPLATES_PATH = config('NOTEBOOK_TEMPLATES_PATH')
 NOTEBOOK_TEMPLATE_NAME = config('NOTEBOOK_TEMPLATE_NAME')
 REPORT_OUTPUT_DIR = config('REPORT_OUTPUT_DIR')
+
+
+templates = Jinja2Templates(directory="/app/html_templates")

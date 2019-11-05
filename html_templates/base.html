@@ -1,0 +1,30 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <title>{{ title }}</title>
+    </head>
+    <body>
+        {% if is_admin == true %}
+            Navigation:
+            <a href="/login">login</a>
+            /
+            <a href="/logout">logout</a>
+            /
+            <a href="/private">private files</a>
+            /
+            <a href="/public">public files</a>
+            /
+            <a href="/upload">upload</a>
+            /
+            <a href="/createdirectory">create directory</a>
+            /
+            <a href="/share_link">share link</a>
+        {% endif %}
+        <hr>
+        <h1>{{ title }}</h1>
+        <hr>
+        {% block content %}{% endblock %}
+        <hr>
+    </body>
+</html>
