@@ -8,6 +8,8 @@ requests = "*"
 pytest = "*"
 pytest-asyncio = "*"
 nest-asyncio = "*"
+ipython = "*"
+ipdb = "*"
 
 [packages]
 fastapi = "*"

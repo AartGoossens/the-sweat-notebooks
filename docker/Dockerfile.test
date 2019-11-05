@@ -1,6 +1,8 @@
 FROM python:3.7
 
 ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONBREAKPOINT=ipdb.set_trace
+
 
 RUN mkdir -p /data/output
 
@@ -14,4 +16,4 @@ RUN pipenv install --system --dev
 
 WORKDIR /app/app
 
-CMD pytest
+CMD pytest -s

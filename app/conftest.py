@@ -5,7 +5,7 @@ from pathlib import Path
 
 import nest_asyncio
 
-from config import database, metadata, DATABASE_PATH
+import config
 from strava.models import StravaAthlete
 
 
@@ -16,8 +16,8 @@ nest_asyncio.apply()
 @pytest.mark.asyncio
 @pytest.fixture(scope='function', autouse=True)
 async def db():
-    engine = sqlalchemy.create_engine(str(database.url))
-    metadata.create_all(engine)
+    engine = sqlalchemy.create_engine(str(config.database.url))
+    config.metadata.create_all(engine)
 
     
     for i in range(1, 6):
@@ -29,4 +29,14 @@ async def db():
 
 
     yield
-    Path(DATABASE_PATH).unlink()
+    Path(config.DATABASE_PATH).unlink()
+
+
+@pytest.fixture(scope='function')
+def tmp_output_dir(tmpdir):
+    old_report_output_dir = config.REPORT_OUTPUT_DIR
+    config.REPORT_OUTPUT_DIR = tmpdir
+
+    yield Path(tmpdir.dirpath())
+
+    config.REPORT_OUTPUT_DIR = old_report_output_dir

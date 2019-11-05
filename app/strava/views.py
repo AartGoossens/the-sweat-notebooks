@@ -10,7 +10,7 @@ from config import APP_URL, STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET
 from main import app
 from strava.models import StravaAthlete
 from strava.schemas import Event
-from strava.utils import refresh_access_token
+from utils import refresh_access_token
 
 
 @app.get('/strava/login')

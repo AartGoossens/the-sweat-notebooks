@@ -11,4 +11,5 @@ build_test:
 	docker-compose -f docker/docker-compose.test.yml build
 
 test: build_test
-	docker-compose -f docker/docker-compose.test.yml up -V
+	docker-compose -f docker/docker-compose.test.yml up -V -d
+	docker attach fastapi-test-test
