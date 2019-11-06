@@ -21,6 +21,8 @@ def list_reports(request: Request, athlete_id):
     for f in athlete_dir.iterdir():
         if not f.is_file():
             continue
+        if f.name.endswith('.ipynb'):
+            continue
         reports.append(f.name)
 
     return templates.TemplateResponse(
