@@ -1,5 +1,7 @@
 import json
+import os
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 
 import nbformat
 import papermill
@@ -29,7 +31,7 @@ async def handle_new_event(event):
     client = Client(athlete.access_token)
     while True:
         try:
-            strava_athlete_response = client.get_athlete()
+            athlete_response = client.get_athlete()
             activity_detail_response = client.get_activity(event.object_id)
             activity_streams_response = client.get_activity_streams(
                 activity_id=event.object_id,
@@ -41,20 +43,34 @@ async def handle_new_event(event):
             client = Client(athlete.access_token)
         else:
             break
+    
 
-    strava_athlete = strava_athlete_response.to_dict()
-    strava_activity_detail = activity_detail_response.to_dict()
+    athlete_file = NamedTemporaryFile(mode='w', delete=False)
+    json.dump(athlete_response.to_dict(), athlete_file)
+    athlete_file.close()
+
+    activity_detail_file = NamedTemporaryFile(mode='w', delete=False)
+    json.dump(activity_detail_response.to_dict(), activity_detail_file)
+    activity_detail_file.close()
+
+    activity_streams_file = NamedTemporaryFile(mode='w', delete=False)
     strava_activity_streams = {key: val.data for key, val in activity_streams_response.items()}
+    json.dump(strava_activity_streams, activity_streams_file)
+    activity_streams_file.close()
 
     papermill.execute_notebook(
         input_path=input_path,
         output_path=output_path,
         parameters=dict(
-            athlete=strava_athlete,
-            activity_detail=strava_activity_detail,
-            activity_streams=strava_activity_streams
+            athlete_file=athlete_file.name,
+            activity_detail_file=activity_detail_file.name,
+            activity_streams_file=activity_streams_file.name
         )
     )
+
+    os.unlink(athlete_file.name)
+    os.unlink(activity_detail_file.name)
+    os.unlink(activity_streams_file.name)
 
     with open(output_path, 'r') as f:
         notebook = nbformat.reads(f.read(), as_version=4)
