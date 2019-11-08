@@ -1,3 +1,4 @@
+import views
 from main import app
 from reports import views
 from strava import views

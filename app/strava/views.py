@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from fastapi import BackgroundTasks
-from starlette.responses import RedirectResponse
+from starlette.responses import RedirectResponse, Response
 from starlette.requests import Request
 from stravalib import Client, exc as stravalib_exceptions
 
@@ -26,20 +26,28 @@ def strava_login():
 @app.get('/strava/callback')
 async def strava_callback(code: str, scope: str, state: str = None):
     client = Client()
-    response = client.exchange_code_for_token(
+    token_response = client.exchange_code_for_token(
         client_id=STRAVA_CLIENT_ID, client_secret=STRAVA_CLIENT_SECRET,
         code=code)
 
-    client = Client(access_token=response['access_token'])
+    client = Client(access_token=token_response['access_token'])
     athlete = client.get_athlete()
     
-    await StravaAthlete.objects.create(
-        id=athlete.id,
-        access_token=response['access_token'],
-        refresh_token=response['refresh_token'],
-        token_expiration_datetime=datetime.utcfromtimestamp(response['expires_at']).isoformat())
+    try:
+        strava_athlete = await StravaAthlete.objects.get(id=athlete.id)
+    except ValueError:
+        strava_athlete = await StravaAthlete.objects.create(
+            id=athlete.id,
+            access_token=token_response['access_token'],
+            refresh_token=token_response['refresh_token'],
+            token_expiration_datetime=datetime.utcfromtimestamp(token_response['expires_at']).isoformat())
     
-    return {'message': f'Athlete with id {athlete.id} created'}
+    response = RedirectResponse('/')
+    response.set_cookie(
+        key="strava_athlete_id",
+        value=str(strava_athlete.id),
+        httponly=True)
+    return response
 
 
 @app.post('/strava/subscription')

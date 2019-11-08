@@ -1,5 +1,7 @@
 from pathlib import Path
-from starlette.responses import HTMLResponse
+
+from fastapi import Cookie
+from starlette.responses import HTMLResponse, RedirectResponse
 from starlette.requests import Request
 
 from config import REPORT_OUTPUT_DIR, templates
@@ -14,9 +16,18 @@ def retrieve_report(athlete_id, report_name):
     return HTMLResponse(content=html, status_code=200)
 
 
+@app.get('/reports')
+def list_reports(strava_athlete_id: str = Cookie(None)):
+    # @TODO add admin login to see all available athletes
+    if strava_athlete_id is None:
+        return RedirectResponse(f'/login')
+    else:
+        return RedirectResponse(f'/reports/{strava_athlete_id}')
+
+
 @app.get('/reports/{athlete_id}')
-def list_reports(request: Request, athlete_id):
-    athlete_dir = Path(REPORT_OUTPUT_DIR, athlete_id)
+def list_reports(request: Request, athlete_id: int = None):
+    athlete_dir = Path(REPORT_OUTPUT_DIR, str(athlete_id))
     reports = []
     for f in athlete_dir.iterdir():
         if not f.is_file():
