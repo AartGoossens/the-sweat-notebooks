@@ -13,5 +13,6 @@ class StravaAthlete(orm.Model):
     access_token = orm.String(max_length=100)
     refresh_token = orm.String(max_length=100)
     token_expiration_datetime = orm.DateTime()
+    backfilled = orm.Boolean(default=False)
 
     # @TODO add 'get_access_token' method on model that automatically refreshes token if needed

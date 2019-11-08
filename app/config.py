@@ -23,3 +23,6 @@ REPORT_OUTPUT_DIR = config('REPORT_OUTPUT_DIR')
 
 
 templates = Jinja2Templates(directory="/app/html_templates")
+
+
+STRAVA_BACKFILL_COUNT = config('STRAVA_BACKFILL_COUNT', cast=int)

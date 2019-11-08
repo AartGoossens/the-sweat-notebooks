@@ -13,10 +13,17 @@ from config import (
 )
 
 
+def get_or_create_athlete_dir(athlete):
+    athlete_dir = Path(f'{REPORT_OUTPUT_DIR}{athlete.id}')
+    if not athlete_dir.exists():
+        athlete_dir.mkdir()
+    return athlete_dir
+
+
 def generate_report(athlete, activity_id):
 
     input_path = f'{NOTEBOOK_TEMPLATES_PATH}{NOTEBOOK_TEMPLATE_NAME}.ipynb'
-    output_dir = Path(f'{REPORT_OUTPUT_DIR}{athlete.id}').mkdir(exist_ok=True)
+    output_dir = get_or_create_athlete_dir(athlete)
     output_path = f'{REPORT_OUTPUT_DIR}{athlete.id}/{activity_id}-{NOTEBOOK_TEMPLATE_NAME}.ipynb'
 
     papermill.execute_notebook(

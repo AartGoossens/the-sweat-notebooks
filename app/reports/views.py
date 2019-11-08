@@ -6,6 +6,7 @@ from starlette.requests import Request
 
 from config import REPORT_OUTPUT_DIR, templates
 from main import app
+from strava.models import StravaAthlete
 
 
 @app.get('/reports/{athlete_id}/{report_name}')
@@ -26,7 +27,7 @@ def list_reports(strava_athlete_id: str = Cookie(None)):
 
 
 @app.get('/reports/{athlete_id}')
-def list_reports(request: Request, athlete_id: int = None):
+async def list_reports(request: Request, athlete_id: int = None):
     athlete_dir = Path(REPORT_OUTPUT_DIR, str(athlete_id))
     reports = []
     for f in athlete_dir.iterdir():
@@ -36,6 +37,15 @@ def list_reports(request: Request, athlete_id: int = None):
             continue
         reports.append(f.name)
 
+    athlete = await StravaAthlete.objects.get(id=athlete_id)
+    athlete_backfilled = athlete.backfilled
+
     return templates.TemplateResponse(
         "list_reports.html",
-        context={"request": request, "athlete_id": athlete_id, "reports": reports})
+        context=dict(
+            request=request,
+            athlete_id=athlete_id,
+            athlete_backfilled=athlete_backfilled,
+            reports=reports
+        )
+    )

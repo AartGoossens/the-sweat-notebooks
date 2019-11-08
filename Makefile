@@ -4,7 +4,7 @@ build:
 serve:
 	docker-compose -f docker/docker-compose.yml up
 
-create_database:
+database:
 	docker-compose -f docker/docker-compose.yml run app python create_database.py
 
 build_test:

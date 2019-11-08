@@ -1,15 +1,19 @@
+import shutil
 from datetime import datetime
+from pathlib import Path
 
 from fastapi import BackgroundTasks
+from orm import exceptions as orm_exceptions
 from starlette.responses import RedirectResponse
 from starlette.requests import Request
 from stravalib import Client, exc as stravalib_exceptions
 
 from config import APP_URL, STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET
 from main import app
+from reports.utils import get_or_create_athlete_dir
 from strava.models import StravaAthlete
 from strava.schemas import Event
-from strava.tasks import handle_event
+from strava.tasks import handle_event, new_athlete
 from strava.utils import refresh_access_token
 
 
@@ -24,7 +28,7 @@ def strava_login():
 
 
 @app.get('/strava/callback')
-async def strava_callback(code: str, scope: str, state: str = None):
+async def strava_callback(background_task: BackgroundTasks, code: str, scope: str, state: str = None):
     client = Client()
     token_response = client.exchange_code_for_token(
         client_id=STRAVA_CLIENT_ID, client_secret=STRAVA_CLIENT_SECRET,
@@ -35,13 +39,15 @@ async def strava_callback(code: str, scope: str, state: str = None):
     
     try:
         strava_athlete = await StravaAthlete.objects.get(id=athlete.id)
-    except ValueError:
+    except orm_exceptions.NoMatch:
         strava_athlete = await StravaAthlete.objects.create(
             id=athlete.id,
             access_token=token_response['access_token'],
             refresh_token=token_response['refresh_token'],
             token_expiration_datetime=datetime.utcfromtimestamp(token_response['expires_at']).isoformat())
-        # @TODO add background task to generate report for n latest activities
+
+        background_task.add_task(new_athlete, strava_athlete)
+        get_or_create_athlete_dir(strava_athlete)
     
     response = RedirectResponse('/reports')
     response.set_cookie(
@@ -136,8 +142,9 @@ async def delete_strava_athletes(strava_athlete_id: int):
         client = Client(strava_athlete.access_token)
         client.deauthorize()
 
-    await strava_athlete.delete()
+    athlete_dir = get_or_create_athlete_dir(strava_athlete)
+    shutil.rmtree(athlete_dir)
 
-    # @TODO remove reports for the deleted athletes
+    await strava_athlete.delete()
 
     return strava_athlete
