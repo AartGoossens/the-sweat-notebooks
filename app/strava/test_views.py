@@ -95,8 +95,10 @@ class TestStravaViews:
             client_secret=STRAVA_CLIENT_SECRET)
         mocked_list.call_count == 3
 
-    def test_strava_webhook(self, test_client, mocker):
-        m = mocker.patch('tasks.handle_new_event')
+    @pytest.mark.asyncio
+    async def test_strava_webhook(self, test_client, mocker):
+        # @TODO figure out why it has to be mocked like this, not reports.utils.generate_report
+        m = mocker.patch('strava.tasks.generate_report')
         response = test_client.post(
             '/strava/webhook',
             json={
@@ -114,7 +116,10 @@ class TestStravaViews:
         
         assert response.status_code == 200
         assert response.json() == {'message': 'ok'}
-        m.assert_called_once()
+
+        athlete = await StravaAthlete.objects.get(id=2)
+
+        m.assert_called_once_with(athlete, 1360128428)
 
     def test_strava_webhook_validation(self, test_client):
         response = test_client.get(
