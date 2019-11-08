@@ -1,26 +1,24 @@
 from fastapi import Cookie
-from starlette.responses import RedirectResponse
+from starlette.responses import HTMLResponse, RedirectResponse
 from starlette.requests import Request
-from stravalib import Client, exc as stravalib_exceptions
+from starlette.staticfiles import StaticFiles
 
-from config import APP_URL, STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET
+from config import templates
 from main import app
-from strava.models import StravaAthlete
-from strava.schemas import Event
-from strava.tasks import handle_event
-from strava.utils import refresh_access_token
 
 
 @app.get('/')
-def root(strava_athlete_id: str = Cookie(None)):
-    if strava_athlete_id is None:
-        return RedirectResponse(f'/login')
-    else:
-        return RedirectResponse(f'/reports')
+def home(request: Request):
+    return templates.TemplateResponse(
+        "home.html",
+        context={"request": request})
+
 
 @app.get('/login')
-def login():
-    return RedirectResponse(f'/strava/login')
+def login(request: Request):
+    return templates.TemplateResponse(
+        "login.html",
+        context={"request": request})
 
 
 @app.get('/logout')
@@ -28,3 +26,6 @@ def logout(strava_athlete_id: str = Cookie(None)):
     response = RedirectResponse('/login')
     response.delete_cookie('strava_athlete_id')
     return response
+
+
+app.mount("/static", StaticFiles(directory="/static"), name="static")

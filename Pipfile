@@ -24,6 +24,7 @@ papermill = "*"
 ipykernel = "*"
 nbconvert = "*"
 jinja2 = "*"
+aiofiles = "*"
 
 [requires]
 python_version = "3.7"

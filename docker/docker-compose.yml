@@ -14,3 +14,4 @@ services:
       - ../data/db.sqlite:/data/db.sqlite
       - ../templates:/data/templates
       - ../output:/data/output
+      - ../static:/static

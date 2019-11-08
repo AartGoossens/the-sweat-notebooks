@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% set title = "Sweaty Reports" %}
+{% block content %}
+<i>Sweaty Reports</i> is an application that gives you advanced reports about your Strava activities.
+<br>
+The design (yes, calling it design might be a stretch) may look very basic. That has a few reasons:
+<ul>
+    <li>I'm lazy.</li>
+    <li>I'm not a frontend developer and definitely not a designer.</li>
+    <li>I built this application out of personal interest and as a proof-of-concept of the combination of some technologies.</li>
+    <li>I don't want you to get distracted by a fancy user interace.</li>
+</ul>
+
+<h3>"Technologies"</h3>
+So, what are these "techologies" I'm talking about?
+<ul>
+    <li><a href="https://papermill.readthedocs.io/en/latest/">Papermill</a> to parametrize and execute Jupyter Notebook templates.</li>
+    <li><a href="https://nbconvert.readthedocs.io/en/latest/">Nbconvert</a> to convert the generated Jupyter Notebooks into html.</li>
+    <li><a href="https://developers.strava.com/docs/webhooks/">Strava webhooks</a> to get a webhook trigger from Strava when you upload a new activity.</li>
+</ul>
+
+<h3>Getting started</h3>
+To get started, head over to the <a href="/login">login</a> page and connect with Strava. After you uploaded a new activity to Strava, your reports will be added to the <a href="/reports">reports</a> page.
+
+<h3>Development</h3>
+This application is still in development. Some features I would like to add:
+<ul>
+    <li>Generating report for activities that were uploaded before a user connected this application to Strava.</li>
+    <li>Support for multiple reports and reports for different types of activities</li>
+    <li>Allow uploading custom Jupyter Notebook templates</li>
+    <li>Track features that are computed in the notebook over time by using <a href="https://nteract-scrapbook.readthedocs.io/">Scrapbook</a> (another tool that I'd like to try).</li>
+</ul>
+
+{% endblock %}

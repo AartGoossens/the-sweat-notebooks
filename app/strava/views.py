@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from fastapi import BackgroundTasks
-from starlette.responses import RedirectResponse, Response
+from starlette.responses import RedirectResponse
 from starlette.requests import Request
 from stravalib import Client, exc as stravalib_exceptions
 
@@ -42,7 +42,7 @@ async def strava_callback(code: str, scope: str, state: str = None):
             refresh_token=token_response['refresh_token'],
             token_expiration_datetime=datetime.utcfromtimestamp(token_response['expires_at']).isoformat())
     
-    response = RedirectResponse('/')
+    response = RedirectResponse('/reports')
     response.set_cookie(
         key="strava_athlete_id",
         value=str(strava_athlete.id),
