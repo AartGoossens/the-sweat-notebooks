@@ -1,76 +1,38 @@
-import json
-import os
+from datetime import datetime, timedelta
 from pathlib import Path
-from tempfile import NamedTemporaryFile
 
 import nbformat
 import papermill
 from nbconvert import HTMLExporter
-from stravalib import Client, exc as stravalib_exceptions
 
 from strava.models import StravaAthlete
+from strava.schemas import EventObjectType
 from utils import refresh_access_token
 from config import (
     NOTEBOOK_TEMPLATE_NAME, NOTEBOOK_TEMPLATES_PATH, REPORT_OUTPUT_DIR
 )
 
 
-STRAVA_STREAM_TYPES = [
-    'time', 'latlng', 'distance', 'altitude', 'velocity_smooth', 'heartrate',
-    'cadence', 'watts', 'temp', 'moving', 'grade_smooth'
-]
-
-
 async def handle_new_event(event):
-    athlete = await StravaAthlete.objects.get(id=event.owner_id)
+    if event.object_type != EventObjectType.activity:
+        return
 
     input_path = f'{NOTEBOOK_TEMPLATES_PATH}{NOTEBOOK_TEMPLATE_NAME}.ipynb'
     output_dir = Path(f'{REPORT_OUTPUT_DIR}{athlete.id}').mkdir(exist_ok=True)
     output_path = f'{REPORT_OUTPUT_DIR}{athlete.id}/{event.object_id}-{NOTEBOOK_TEMPLATE_NAME}.ipynb'
 
-    client = Client(athlete.access_token)
-    while True:
-        try:
-            athlete_response = client.get_athlete()
-            activity_detail_response = client.get_activity(event.object_id)
-            activity_streams_response = client.get_activity_streams(
-                activity_id=event.object_id,
-                types=STRAVA_STREAM_TYPES,
-                series_type='time'
-            )
-        except stravalib_exceptions.AccessUnauthorized:
-            athlete = await refresh_access_token(athlete)
-            client = Client(athlete.access_token)
-        else:
-            break
-    
-
-    athlete_file = NamedTemporaryFile(mode='w', delete=False)
-    json.dump(athlete_response.to_dict(), athlete_file)
-    athlete_file.close()
-
-    activity_detail_file = NamedTemporaryFile(mode='w', delete=False)
-    json.dump(activity_detail_response.to_dict(), activity_detail_file)
-    activity_detail_file.close()
-
-    activity_streams_file = NamedTemporaryFile(mode='w', delete=False)
-    strava_activity_streams = {key: val.data for key, val in activity_streams_response.items()}
-    json.dump(strava_activity_streams, activity_streams_file)
-    activity_streams_file.close()
+    athlete = await StravaAthlete.objects.get(id=event.owner_id)
+    if athlete.token_expiration_datetime < datetime.now() + timedelta(minutes=5):
+        athlete = await refresh_access_token(athlete)
 
     papermill.execute_notebook(
         input_path=input_path,
         output_path=output_path,
         parameters=dict(
-            athlete_file=athlete_file.name,
-            activity_detail_file=activity_detail_file.name,
-            activity_streams_file=activity_streams_file.name
+            access_token=athlete.access_token,
+            activity_id=event.object_id
         )
     )
-
-    os.unlink(athlete_file.name)
-    os.unlink(activity_detail_file.name)
-    os.unlink(activity_streams_file.name)
 
     with open(output_path, 'r') as f:
         notebook = nbformat.reads(f.read(), as_version=4)
