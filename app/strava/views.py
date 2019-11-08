@@ -41,6 +41,7 @@ async def strava_callback(code: str, scope: str, state: str = None):
             access_token=token_response['access_token'],
             refresh_token=token_response['refresh_token'],
             token_expiration_datetime=datetime.utcfromtimestamp(token_response['expires_at']).isoformat())
+        # @TODO add background task to generate report for n latest activities
     
     response = RedirectResponse('/reports')
     response.set_cookie(
@@ -52,6 +53,7 @@ async def strava_callback(code: str, scope: str, state: str = None):
 
 @app.post('/strava/subscription')
 def strava_create_subscription():
+    # @TODO add secret to the callback url to prevent abuse
     client = Client()
     
     response = client.create_subscription(
@@ -65,6 +67,7 @@ def strava_create_subscription():
 
 @app.delete('/strava/subscription')
 def strava_delete_subscription():
+    # @TODO add authorization
     client = Client()
 
     subscriptions = client.list_subscriptions(
@@ -89,6 +92,7 @@ def strava_webhook_validation(request: Request):
     There is no other way then to go back in time and parse the query params ourselves.
     Shoot me.
     '''
+    # @TODO add authorization
 
     hub_challenge = request.query_params['hub.challenge']
     hub_verify_token = request.query_params.get('hub.verify_token', None)
@@ -98,12 +102,14 @@ def strava_webhook_validation(request: Request):
 
 @app.post('/strava/webhook')
 def strava_webhook(event: Event, background_task: BackgroundTasks):
+    # @TODO add a secret to this path to prevent abuse
     background_task.add_task(handle_event, event)
     return {'message': 'ok'}
 
 
 @app.get('/strava/athletes')
 async def list_strava_athletes():
+    # @TODO add authorization
     strava_athletes = await StravaAthlete.objects.all()
 
     return strava_athletes
@@ -111,6 +117,7 @@ async def list_strava_athletes():
 
 @app.get('/strava/athletes/{strava_athlete_id}')
 async def get_strava_athletes(strava_athlete_id: int):
+    # @TODO add authorization
     strava_athlete = await StravaAthlete.objects.get(id=strava_athlete_id)
 
     return strava_athlete
@@ -118,6 +125,7 @@ async def get_strava_athletes(strava_athlete_id: int):
 
 @app.delete('/strava/athletes/{strava_athlete_id}')
 async def delete_strava_athletes(strava_athlete_id: int):
+    # @TODO add authorization
     strava_athlete = await StravaAthlete.objects.get(id=strava_athlete_id)
 
     client = Client(strava_athlete.access_token)
@@ -129,5 +137,7 @@ async def delete_strava_athletes(strava_athlete_id: int):
         client.deauthorize()
 
     await strava_athlete.delete()
+
+    # @TODO remove reports for the deleted athletes
 
     return strava_athlete
