@@ -75,7 +75,6 @@ def strava_create_subscription(admin: bool = Depends(is_admin)):
 
 @app.delete('/strava/subscription')
 def strava_delete_subscription(admin: bool = Depends(is_admin)):
-    # @TODO add authorization
     client = Client()
 
     subscriptions = client.list_subscriptions(
@@ -117,7 +116,6 @@ def strava_webhook(event: Event, background_task: BackgroundTasks):
 
 @app.get('/strava/athletes')
 async def list_strava_athletes(admin: bool = Depends(is_admin)):
-    # @TODO add authorization
     strava_athletes = await StravaAthlete.objects.all()
 
     return strava_athletes
@@ -125,7 +123,6 @@ async def list_strava_athletes(admin: bool = Depends(is_admin)):
 
 @app.get('/strava/athletes/{strava_athlete_id}')
 async def get_strava_athlete(strava_athlete_id: int, admin: bool = Depends(is_admin)):
-    # @TODO add authorization
     strava_athlete = await StravaAthlete.objects.get(id=strava_athlete_id)
 
     return strava_athlete
@@ -133,7 +130,6 @@ async def get_strava_athlete(strava_athlete_id: int, admin: bool = Depends(is_ad
 
 @app.delete('/strava/athletes/{strava_athlete_id}')
 async def delete_strava_athletes(strava_athlete_id: int, admin: bool = Depends(is_admin)):
-    # @TODO add authorization
     strava_athlete = await StravaAthlete.objects.get(id=strava_athlete_id)
 
     client = Client(strava_athlete.access_token)

@@ -10,5 +10,6 @@ services:
     volumes:
       - ..:/app
       - ../templates:/data/templates
+      - ../static:/static
     stdin_open: true
     tty: true

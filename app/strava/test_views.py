@@ -2,7 +2,8 @@ from dataclasses import dataclass
 import pytest
 from starlette.testclient import TestClient
 
-from config import STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET
+from auth import create_jwt_token
+from config import ADMIN_IDS, STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET
 from server import app
 from strava.models import StravaAthlete
 
@@ -11,6 +12,14 @@ class TestStravaViews:
     @pytest.fixture
     def test_client(self):
         return TestClient(app)
+
+    @pytest.fixture
+    def jwt_token_admin(self):
+        return create_jwt_token(ADMIN_IDS[0])
+
+    @pytest.fixture
+    def jwt_token_not_admin(self):
+        return create_jwt_token('some sub')
 
     def test_strava_login(self, test_client):
         response = test_client.get('/strava/login', allow_redirects=False)
@@ -33,6 +42,8 @@ class TestStravaViews:
             'refresh_token': 'some refresh token',
             'expires_at':13371337
         }
+        mocked_get_activities = mocker.patch('stravalib.Client.get_activities')
+        mocked_get_activities = []
 
         @dataclass
         class StravaAthleteResponse:
@@ -48,13 +59,13 @@ class TestStravaViews:
             params=dict(
                 code='some code',
                 scope='some scope'
-            )
+            ),
+            allow_redirects=False
+
         )
 
-        assert response.status_code == 200
-        assert response.json() == {
-            'message': 'Athlete with id 1337 created'
-        }
+        assert response.status_code == 307
+        assert response.headers['location'] == '/reports'
         mocked_exchange_code_for_token.assert_called_once_with(
             client_id=STRAVA_CLIENT_ID,
             client_secret=STRAVA_CLIENT_SECRET,
@@ -65,10 +76,12 @@ class TestStravaViews:
         assert strava_athletes_count + 1 == await StravaAthlete.objects.count()
 
 
-    def test_strava_create_subscription(self, test_client, mocker):
+    def test_strava_create_subscription(self, test_client, mocker, jwt_token_admin):
         m = mocker.patch('stravalib.Client.create_subscription')
 
-        response = test_client.post(url='/strava/subscription')
+        response = test_client.post(
+            url='/strava/subscription',
+            cookies={'jwt_token': jwt_token_admin})
 
         assert response.status_code == 200
         m.assert_called_once_with(
@@ -77,7 +90,23 @@ class TestStravaViews:
             callback_url='http://localhost:8000/strava/webhook',
             verify_token='some verify token')
 
-    def test_strava_delete_subscription(self, test_client, mocker):
+    def test_strava_create_subscription_unauthenticated(self, test_client, mocker):
+        m = mocker.patch('stravalib.Client.create_subscription')
+
+        response = test_client.post(url='/strava/subscription')
+
+        assert response.status_code == 401
+
+    def test_strava_create_subscription_unauthorized(self, test_client, mocker, jwt_token_not_admin):
+        m = mocker.patch('stravalib.Client.create_subscription')
+
+        response = test_client.post(
+            url='/strava/subscription',
+            cookies={'jwt_token': jwt_token_not_admin})
+
+        assert response.status_code == 403
+
+    def test_strava_delete_subscription(self, test_client, mocker, jwt_token_admin):
         mocked_list = mocker.patch('stravalib.Client.list_subscriptions')
 
         @dataclass
@@ -87,13 +116,27 @@ class TestStravaViews:
         mocked_delete = mocker.patch('stravalib.Client.delete_subscription')
         mocked_delete.return_value = [MockedSubscription(i) for i in range(2)]
 
-        response = test_client.delete(url='/strava/subscription')
+        response = test_client.delete(
+            url='/strava/subscription',
+            cookies={'jwt_token': jwt_token_admin})
 
         assert response.status_code == 200
         mocked_list.assert_called_once_with(
             client_id=STRAVA_CLIENT_ID,
             client_secret=STRAVA_CLIENT_SECRET)
         mocked_list.call_count == 3
+
+    def test_strava_delete_subscription_unauthenticated(self, test_client):
+        response = test_client.delete(url='/strava/subscription')
+
+        assert response.status_code == 401
+
+    def test_strava_delete_subscription_unauthorized(self, test_client, jwt_token_not_admin):
+        response = test_client.delete(
+            url='/strava/subscription',
+            cookies={'jwt_token': jwt_token_not_admin})
+
+        assert response.status_code == 403
 
     @pytest.mark.asyncio
     async def test_strava_webhook(self, test_client, mocker):
@@ -146,9 +189,12 @@ class TestStravaViews:
         assert response.status_code == 200
         assert response.json() == {'hub.challenge': 'some hub challenge'}
 
-    def test_list_strava_athletes(self, test_client):
-        response = test_client.get('/strava/athletes')
+    def test_list_strava_athletes(self, test_client, jwt_token_admin):
+        response = test_client.get(
+            url='/strava/athletes',
+            cookies={'jwt_token': jwt_token_admin})
         
+        assert response.status_code == 200
         athletes = response.json()
 
         assert len(athletes) == 5
@@ -158,9 +204,24 @@ class TestStravaViews:
         assert 'refresh_token' in athlete
         assert 'token_expiration_datetime' in athlete
 
-    def test_get_strava_athlete(self, test_client):
-        response = test_client.get('/strava/athletes/1')
+    def test_list_strava_athletes_unauthenticated(self, test_client, jwt_token_admin):
+        response = test_client.get(url='/strava/athletes')
         
+        assert response.status_code == 401
+
+    def test_list_strava_athletes_unauthorized(self, test_client, jwt_token_not_admin):
+        response = test_client.get(
+            url='/strava/athletes',
+            cookies={'jwt_token': jwt_token_not_admin})
+        
+        assert response.status_code == 403
+
+    def test_get_strava_athlete(self, test_client, jwt_token_admin):
+        response = test_client.get(
+            url='/strava/athletes/1',
+            cookies={'jwt_token': jwt_token_admin})
+        
+        assert response.status_code == 200
         athlete = response.json()
 
         assert athlete['id'] == 1
@@ -168,14 +229,29 @@ class TestStravaViews:
         assert athlete['refresh_token'] == 'some refresh token'
         assert 'token_expiration_datetime' in athlete
 
+    def test_get_strava_athlete_unauthorized(self, test_client):
+        response = test_client.get(url='/strava/athletes/1')
+        
+        assert response.status_code == 401
+
+    def test_get_strava_athlete(self, test_client, jwt_token_not_admin):
+        response = test_client.get(
+            url='/strava/athletes/1',
+            cookies={'jwt_token': jwt_token_not_admin})
+        
+        assert response.status_code == 403
+
     @pytest.mark.asyncio
-    async def test_delete_strava_athlete(self, test_client, mocker):
+    async def test_delete_strava_athlete(self, test_client, mocker, jwt_token_admin):
         mocked_deauthorize = mocker.patch('stravalib.Client.deauthorize')
 
         assert await StravaAthlete.objects.count() == 5
 
-        response = test_client.delete('/strava/athletes/1')
+        response = test_client.delete(
+            url='/strava/athletes/1',
+            cookies={'jwt_token': jwt_token_admin})
 
+        assert response.status_code == 200
         athlete = response.json()
 
         assert athlete['id'] == 1
@@ -186,3 +262,15 @@ class TestStravaViews:
         assert await StravaAthlete.objects.count() == 4
 
         mocked_deauthorize.assert_called_once()
+
+    def test_delete_strava_athlete_unauthorized(self, test_client):
+        response = test_client.delete(url='/strava/athletes/1')
+
+        assert response.status_code == 401
+
+    def test_delete_strava_athlete_unauthenticated(self, test_client, jwt_token_not_admin):
+        response = test_client.delete(
+            url='/strava/athletes/1',
+            cookies={'jwt_token': jwt_token_not_admin})
+
+        assert response.status_code == 403

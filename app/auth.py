@@ -43,6 +43,6 @@ def jwt_cookie_authentication(jwt_token: str = Cookie(None)):
 def is_admin(jwt_payload: dict = Depends(jwt_cookie_authentication)):
     if not jwt_payload['is_authenticated']:
         raise HTTPException(status_code=401, detail="Unauthorized")
-    if not jwt_payload['is_authenticated']:
+    if not jwt_payload['is_admin']:
         raise HTTPException(status_code=403, detail="Forbidden")
     return True

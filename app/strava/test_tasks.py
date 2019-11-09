@@ -49,3 +49,26 @@ async def test_handle_event_athlete(mocker):
     await tasks.handle_event(event)
 
     mocked_generate_report.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_new_athlete(mocker):
+    mocked_get_activities = mocker.patch('stravalib.Client.get_activities')
+
+    @dataclass
+    class StravaActivity:
+        id: int
+
+    mocked_get_activities.return_value = [StravaActivity(1337)]
+    mocked_generate_report = mocker.patch('strava.tasks.generate_report')
+
+    strava_athlete = await StravaAthlete.objects.get(id=1)
+    assert strava_athlete.backfilled == False
+
+    await tasks.new_athlete(strava_athlete)
+
+    mocked_get_activities.assert_called_once_with(limit=config.STRAVA_BACKFILL_COUNT)
+    mocked_generate_report.assert_called_once_with(strava_athlete, 1337)
+
+    strava_athlete = await StravaAthlete.objects.get(id=1)
+    assert strava_athlete.backfilled == True
