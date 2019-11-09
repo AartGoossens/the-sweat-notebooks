@@ -10,6 +10,6 @@ WORKDIR /app
 COPY Pipfile Pipfile.lock /app/
 RUN pipenv install --system
 
-WORKDIR /app/app
+WORKDIR /app
 
-CMD uvicorn server:app --host 0.0.0.0 --port 8000 --reload
+CMD uvicorn app:app --host 0.0.0.0 --port 8000 --reload
