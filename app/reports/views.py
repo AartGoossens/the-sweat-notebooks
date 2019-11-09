@@ -28,7 +28,8 @@ def list_reports(auth: dict = Depends(jwt_cookie_authentication)):
         return RedirectResponse(f'/reports/{strava_athlete_id}')
     else:
         # @TODO return list of athletes
-        return 'congrats, you are an admin'
+        strava_athlete_id = auth['sub']
+        return RedirectResponse(f'/reports/{strava_athlete_id}')
 
 
 @app.get('/reports/{athlete_id}')
