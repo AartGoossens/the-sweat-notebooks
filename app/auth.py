@@ -1,5 +1,5 @@
 import jwt
-from fastapi import Cookie
+from fastapi import Cookie, Depends, HTTPException
 from jwt.exceptions import PyJWTError
 from starlette.requests import Request
 
@@ -38,3 +38,11 @@ def jwt_cookie_authentication(jwt_token: str = Cookie(None)):
         payload = get_payload(jwt_token)
 
     return payload
+
+
+def is_admin(jwt_payload: dict = Depends(jwt_cookie_authentication)):
+    if not jwt_payload['is_authenticated']:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    if not jwt_payload['is_authenticated']:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    return True

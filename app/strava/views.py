@@ -2,13 +2,13 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 
-from fastapi import BackgroundTasks
+from fastapi import BackgroundTasks, Depends
 from orm import exceptions as orm_exceptions
 from starlette.responses import RedirectResponse
 from starlette.requests import Request
 from stravalib import Client, exc as stravalib_exceptions
 
-from auth import create_jwt_token
+from auth import create_jwt_token, is_admin
 from config import APP_URL, STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET
 from main import app
 from reports.utils import get_or_create_athlete_dir
@@ -60,7 +60,7 @@ async def strava_callback(background_task: BackgroundTasks, code: str, scope: st
 
 
 @app.post('/strava/subscription')
-def strava_create_subscription():
+def strava_create_subscription(admin: bool = Depends(is_admin)):
     # @TODO add secret to the callback url to prevent abuse
     client = Client()
     
@@ -74,7 +74,7 @@ def strava_create_subscription():
 
 
 @app.delete('/strava/subscription')
-def strava_delete_subscription():
+def strava_delete_subscription(admin: bool = Depends(is_admin)):
     # @TODO add authorization
     client = Client()
 
@@ -116,7 +116,7 @@ def strava_webhook(event: Event, background_task: BackgroundTasks):
 
 
 @app.get('/strava/athletes')
-async def list_strava_athletes():
+async def list_strava_athletes(admin: bool = Depends(is_admin)):
     # @TODO add authorization
     strava_athletes = await StravaAthlete.objects.all()
 
@@ -124,7 +124,7 @@ async def list_strava_athletes():
 
 
 @app.get('/strava/athletes/{strava_athlete_id}')
-async def get_strava_athletes(strava_athlete_id: int):
+async def get_strava_athlete(strava_athlete_id: int, admin: bool = Depends(is_admin)):
     # @TODO add authorization
     strava_athlete = await StravaAthlete.objects.get(id=strava_athlete_id)
 
@@ -132,7 +132,7 @@ async def get_strava_athletes(strava_athlete_id: int):
 
 
 @app.delete('/strava/athletes/{strava_athlete_id}')
-async def delete_strava_athletes(strava_athlete_id: int):
+async def delete_strava_athletes(strava_athlete_id: int, admin: bool = Depends(is_admin)):
     # @TODO add authorization
     strava_athlete = await StravaAthlete.objects.get(id=strava_athlete_id)
 
