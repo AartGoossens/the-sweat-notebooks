@@ -2,8 +2,8 @@ version: '3.7'
 
 services:
   app:
-    image: fastapi-test-test
-    container_name: fastapi-test-test
+    image: sweaty-reports-test
+    container_name: sweaty-reports-test
     build:
       context: ..
       dockerfile: docker/Dockerfile.test

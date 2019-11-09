@@ -2,11 +2,17 @@ version: '3.7'
 
 services:
   app:
-    image: fastapi-test
-    container_name: fastapi-test
+    image: sweaty-reports
+    container_name: sweaty-reports
     build:
       context: ..
       dockerfile: docker/Dockerfile.prod
+    environment:
+      - STRAVA_CLIENT_ID=6218
+      - STRAVA_CLIENT_SECRET=ba82d6c2a4e4c46b9ad8f94de0dd6e54ec4a12ea
+      - APP_URL=http://localhost:8000
+      - JWT_SECRET=abcdefg1234567
+      - ADMIN_IDS=2495424
     ports:
       - "8000:8000"
     volumes:

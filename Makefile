@@ -17,7 +17,7 @@ build_test:
 
 test: build_test
 	docker-compose -f docker/docker-compose.test.yml up -V -d
-	docker attach fastapi-test-test
+	docker attach sweaty-reports-test
 
 build_prod:
 	docker-compose -f docker/docker-compose.prod.yml build
