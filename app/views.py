@@ -1,4 +1,3 @@
-from fastapi import Cookie
 from starlette.responses import HTMLResponse, RedirectResponse
 from starlette.requests import Request
 from starlette.staticfiles import StaticFiles
@@ -22,9 +21,9 @@ def login(request: Request):
 
 
 @app.get('/logout')
-def logout(strava_athlete_id: str = Cookie(None)):
+def logout():
     response = RedirectResponse('/login')
-    response.delete_cookie('strava_athlete_id')
+    response.delete_cookie('jwt_token')
     return response
 
 

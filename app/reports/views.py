@@ -1,9 +1,10 @@
 from pathlib import Path
 
-from fastapi import Cookie
+from fastapi import Depends
 from starlette.responses import HTMLResponse, RedirectResponse
 from starlette.requests import Request
 
+from auth import jwt_cookie_authentication
 from config import REPORT_OUTPUT_DIR, templates
 from main import app
 from strava.models import StravaAthlete
@@ -18,12 +19,16 @@ def retrieve_report(athlete_id, report_name):
 
 
 @app.get('/reports')
-def list_reports(strava_athlete_id: str = Cookie(None)):
+def list_reports(auth: dict = Depends(jwt_cookie_authentication)):
     # @TODO add admin login to see all available athletes
-    if strava_athlete_id is None:
+    if not auth['is_authenticated']:
         return RedirectResponse(f'/login')
-    else:
+    elif not auth.get('is_admin', False):
+        strava_athlete_id = auth['sub']
         return RedirectResponse(f'/reports/{strava_athlete_id}')
+    else:
+        # @TODO return list of athletes
+        return 'congrats, you are an admin'
 
 
 @app.get('/reports/{athlete_id}')

@@ -8,6 +8,7 @@ from starlette.responses import RedirectResponse
 from starlette.requests import Request
 from stravalib import Client, exc as stravalib_exceptions
 
+from auth import create_jwt_token
 from config import APP_URL, STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET
 from main import app
 from reports.utils import get_or_create_athlete_dir
@@ -50,9 +51,10 @@ async def strava_callback(background_task: BackgroundTasks, code: str, scope: st
         get_or_create_athlete_dir(strava_athlete)
     
     response = RedirectResponse('/reports')
+    jwt_token = create_jwt_token(sub=strava_athlete.id)
     response.set_cookie(
-        key="strava_athlete_id",
-        value=str(strava_athlete.id),
+        key="jwt_token",
+        value=jwt_token,
         httponly=True)
     return response
 

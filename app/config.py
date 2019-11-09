@@ -26,3 +26,9 @@ templates = Jinja2Templates(directory="/app/html_templates")
 
 
 STRAVA_BACKFILL_COUNT = config('STRAVA_BACKFILL_COUNT', cast=int)
+
+
+JWT_SECRET = config('JWT_SECRET', cast=Secret)
+
+
+ADMIN_IDS = config('ADMIN_IDS', cast=CommaSeparatedStrings)
