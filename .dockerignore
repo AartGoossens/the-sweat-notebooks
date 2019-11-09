@@ -3,3 +3,4 @@
 .gitignore
 data/
 Makefile
+__pycache__
