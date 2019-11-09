@@ -1,7 +1,7 @@
 from datetime import datetime
 from stravalib import Client
 
-from config import STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET
+from ..config import STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET
 
 
 async def refresh_access_token(athlete):

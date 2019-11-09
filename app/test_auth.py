@@ -1,7 +1,7 @@
 import pytest
 
-import auth
-from config import ADMIN_IDS
+from . import auth
+from .config import ADMIN_IDS
 
 
 def test_jwt_cookie_authentication():

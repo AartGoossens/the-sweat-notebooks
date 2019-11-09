@@ -2,8 +2,8 @@ from starlette.responses import HTMLResponse, RedirectResponse
 from starlette.requests import Request
 from starlette.staticfiles import StaticFiles
 
-from config import templates
-from main import app
+from .config import templates
+from .main import app
 
 
 @app.get('/')

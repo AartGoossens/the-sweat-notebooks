@@ -5,12 +5,12 @@ import nbformat
 import papermill
 from nbconvert import HTMLExporter
 
-from strava.models import StravaAthlete
-from strava.schemas import EventObjectType
-from strava.utils import refresh_access_token
-from config import (
+from ..config import (
     NOTEBOOK_TEMPLATE_NAME, NOTEBOOK_TEMPLATES_PATH, REPORT_OUTPUT_DIR
 )
+from ..strava.models import StravaAthlete
+from ..strava.schemas import EventObjectType
+from ..strava.utils import refresh_access_token
 
 
 def get_or_create_athlete_dir(athlete):

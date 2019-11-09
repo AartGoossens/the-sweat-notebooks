@@ -3,7 +3,7 @@ from fastapi import Cookie, Depends, HTTPException
 from jwt.exceptions import PyJWTError
 from starlette.requests import Request
 
-from config import ADMIN_IDS, JWT_SECRET
+from .config import ADMIN_IDS, JWT_SECRET
 
 
 def create_jwt_token(sub):

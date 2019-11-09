@@ -7,14 +7,14 @@ import papermill
 from nbconvert import HTMLExporter
 from stravalib import Client
 
-from reports.utils import generate_report
-from strava.models import StravaAthlete
-from strava.schemas import EventObjectType
-from strava.utils import refresh_access_token
-from config import (
+from ..config import (
     NOTEBOOK_TEMPLATE_NAME, NOTEBOOK_TEMPLATES_PATH, REPORT_OUTPUT_DIR,
     STRAVA_BACKFILL_COUNT
 )
+from ..reports.utils import generate_report
+from .models import StravaAthlete
+from .schemas import EventObjectType
+from .utils import refresh_access_token
 
 
 async def handle_event(event):

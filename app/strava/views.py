@@ -8,14 +8,14 @@ from starlette.responses import RedirectResponse
 from starlette.requests import Request
 from stravalib import Client, exc as stravalib_exceptions
 
-from auth import create_jwt_token, is_admin
-from config import APP_URL, STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET
-from main import app
-from reports.utils import get_or_create_athlete_dir
-from strava.models import StravaAthlete
-from strava.schemas import Event
-from strava.tasks import handle_event, new_athlete
-from strava.utils import refresh_access_token
+from ..auth import create_jwt_token, is_admin
+from ..config import APP_URL, STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET
+from ..main import app
+from ..reports.utils import get_or_create_athlete_dir
+from .models import StravaAthlete
+from .schemas import Event
+from .tasks import handle_event, new_athlete
+from .utils import refresh_access_token
 
 
 @app.get('/strava/login')

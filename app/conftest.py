@@ -1,12 +1,12 @@
-import pytest
-import sqlalchemy
 from datetime import datetime, timedelta
 from pathlib import Path
 
 import nest_asyncio
+import pytest
+import sqlalchemy
 
-import config
-from strava.models import StravaAthlete
+from . import config
+from .strava.models import StravaAthlete
 
 
 # https://github.com/spyder-ide/spyder/issues/7096#issuecomment-449655308

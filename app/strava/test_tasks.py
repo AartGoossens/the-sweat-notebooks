@@ -3,16 +3,16 @@ from pathlib import Path
 
 import pytest
 
-import config
-from strava import tasks
-from strava.models import StravaAthlete
-from strava.schemas import Event
+from .. import config
+from . import tasks
+from .models import StravaAthlete
+from .schemas import Event
 
 
 @pytest.mark.asyncio
 async def test_handle_event(mocker):
 
-    mocked_generate_report = mocker.patch('strava.tasks.generate_report')
+    mocked_generate_report = mocker.patch('app.strava.tasks.generate_report')
 
     event = Event(
         aspect_type='update',
@@ -34,7 +34,7 @@ async def test_handle_event(mocker):
 @pytest.mark.asyncio
 async def test_handle_event_athlete(mocker):
 
-    mocked_generate_report = mocker.patch('strava.tasks.generate_report')
+    mocked_generate_report = mocker.patch('app.strava.tasks.generate_report')
 
     event = Event(
         aspect_type='update',
@@ -60,7 +60,7 @@ async def test_new_athlete(mocker):
         id: int
 
     mocked_get_activities.return_value = [StravaActivity(1337)]
-    mocked_generate_report = mocker.patch('strava.tasks.generate_report')
+    mocked_generate_report = mocker.patch('app.strava.tasks.generate_report')
 
     strava_athlete = await StravaAthlete.objects.get(id=1)
     assert strava_athlete.backfilled == False

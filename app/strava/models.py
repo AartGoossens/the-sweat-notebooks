@@ -1,7 +1,7 @@
 import orm
 import sqlalchemy
 
-from config import database, metadata
+from ..config import database, metadata
 
 
 class StravaAthlete(orm.Model):

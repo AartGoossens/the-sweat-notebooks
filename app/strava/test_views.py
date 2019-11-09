@@ -2,10 +2,10 @@ from dataclasses import dataclass
 import pytest
 from starlette.testclient import TestClient
 
-from auth import create_jwt_token
-from config import ADMIN_IDS, STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET
-from server import app
-from strava.models import StravaAthlete
+from ..auth import create_jwt_token
+from ..config import ADMIN_IDS, STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET
+from ..server import app
+from .models import StravaAthlete
 
 
 class TestStravaViews:
@@ -141,7 +141,7 @@ class TestStravaViews:
     @pytest.mark.asyncio
     async def test_strava_webhook(self, test_client, mocker):
         # @TODO figure out why it has to be mocked like this, not reports.utils.generate_report
-        m = mocker.patch('strava.tasks.generate_report')
+        m = mocker.patch('app.strava.tasks.generate_report')
         response = test_client.post(
             '/strava/webhook',
             json={

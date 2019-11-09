@@ -4,10 +4,10 @@ from fastapi import Depends
 from starlette.responses import HTMLResponse, RedirectResponse
 from starlette.requests import Request
 
-from auth import jwt_cookie_authentication
-from config import REPORT_OUTPUT_DIR, templates
-from main import app
-from strava.models import StravaAthlete
+from ..auth import jwt_cookie_authentication
+from ..config import REPORT_OUTPUT_DIR, templates
+from ..main import app
+from ..strava.models import StravaAthlete
 
 
 @app.get('/reports/{athlete_id}/{report_name}')
