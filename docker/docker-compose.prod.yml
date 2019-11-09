@@ -6,12 +6,8 @@ services:
     container_name: fastapi-test
     build:
       context: ..
-      dockerfile: docker/Dockerfile
+      dockerfile: docker/Dockerfile.prod
     ports:
       - "8000:8000"
     volumes:
-      - ..:/app
       - ../data:/data
-      - ../templates:/data/templates
-      - ../output:/data/output
-      - ../static:/static

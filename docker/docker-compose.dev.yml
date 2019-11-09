@@ -1,0 +1,14 @@
+version: '3.7'
+
+services:
+  app:
+    image: fastapi-test-dev
+    container_name: fastapi-test-dev
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dev
+    ports:
+      - "8000:8000"
+    volumes:
+      - ..:/app
+      - ../data:/data

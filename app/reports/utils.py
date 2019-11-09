@@ -16,7 +16,7 @@ from ..strava.utils import refresh_access_token
 def get_or_create_athlete_dir(athlete):
     athlete_dir = Path(f'{REPORT_OUTPUT_DIR}{athlete.id}')
     if not athlete_dir.exists():
-        athlete_dir.mkdir()
+        athlete_dir.mkdir(parents=True, exist_ok=True)
     return athlete_dir
 
 
