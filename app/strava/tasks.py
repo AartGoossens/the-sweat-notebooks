@@ -7,10 +7,7 @@ import papermill
 from nbconvert import HTMLExporter
 from stravalib import Client
 
-from ..config import (
-    NOTEBOOK_TEMPLATE_NAME, NOTEBOOK_TEMPLATES_PATH, REPORT_OUTPUT_DIR,
-    STRAVA_BACKFILL_COUNT
-)
+from ..config import STRAVA_BACKFILL_COUNT
 from ..reports.utils import generate_report
 from .models import StravaAthlete
 from .schemas import EventObjectType
