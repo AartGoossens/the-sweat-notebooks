@@ -7,6 +7,17 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile.test
+    environment:
+      - STRAVA_CLIENT_ID=1337
+      - STRAVA_CLIENT_SECRET=abcdefg1234567
+      - APP_URL=http://localhost:8000
+      - DATABASE_PATH=/data/db.sqlite
+      - NOTEBOOK_TEMPLATES_PATH=/app/notebook_templates/
+      - NOTEBOOK_TEMPLATE_NAME=parametrized_notebook
+      - REPORT_OUTPUT_DIR=/data/reports/
+      - STRAVA_BACKFILL_COUNT=10
+      - JWT_SECRET=abcdefg1234567
+      - ADMIN_IDS=12345678
     volumes:
       - ..:/app
     stdin_open: true

@@ -7,13 +7,13 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile.prod
+    ports:
     environment:
-      - STRAVA_CLIENT_ID=6218
-      - STRAVA_CLIENT_SECRET=ba82d6c2a4e4c46b9ad8f94de0dd6e54ec4a12ea
+      - STRAVA_CLIENT_ID=1337
+      - STRAVA_CLIENT_SECRET=abcdefg1234567
       - APP_URL=http://localhost:8000
       - JWT_SECRET=abcdefg1234567
-      - ADMIN_IDS=2495424
-    ports:
+      - ADMIN_IDS=12345678
       - "8000:8000"
     volumes:
       - ../data:/data

@@ -27,7 +27,7 @@ class TestStravaViews:
         assert response.status_code == 307
         assert response.headers['location'] == (
             'https://www.strava.com/oauth/authorize?'
-            'client_id=6218&'
+            'client_id=1337&'
             'redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fstrava%2Fcallback&'
             'approval_prompt=auto&'
             'response_type=code&'
