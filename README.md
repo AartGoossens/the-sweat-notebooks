@@ -4,7 +4,7 @@
 
 I developed this application as a side project because I wanted to try to combine a few technologies:
 
-- [Papermill](https://papermill.readthedocs.io/en/latest/)" to parametrize and execute Jupyter Notebook templates.
+- [Papermill](https://papermill.readthedocs.io/en/latest/) to parametrize and execute Jupyter Notebook templates.
 - [Nbconvert](https://nbconvert.readthedocs.io/en/latest/) to convert the generated Jupyter Notebooks into html.
 - [Strava webhooks](https://developers.strava.com/docs/webhooks/) to get a webhook trigger from Strava when you upload a new activity.
 
