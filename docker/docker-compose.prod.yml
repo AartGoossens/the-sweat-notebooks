@@ -2,18 +2,18 @@ version: '3.7'
 
 services:
   app:
-    image: sweaty-reports
+    image: aartgoossens/sweaty-reports:latest
     container_name: sweaty-reports
     build:
       context: ..
       dockerfile: docker/Dockerfile.prod
     ports:
+      - "8000:8000"
     environment:
       - STRAVA_CLIENT_ID=1337
       - STRAVA_CLIENT_SECRET=abcdefg1234567
       - APP_URL=http://localhost:8000
       - JWT_SECRET=abcdefg1234567
       - ADMIN_IDS=12345678
-      - "8000:8000"
     volumes:
       - ../data:/data
