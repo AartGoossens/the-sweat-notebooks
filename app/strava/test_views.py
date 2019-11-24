@@ -274,3 +274,24 @@ class TestStravaViews:
             cookies={'jwt_token': jwt_token_not_admin})
 
         assert response.status_code == 403
+
+    @pytest.mark.asyncio
+    async def test_process_activity(self, test_client, mocker, jwt_token_admin):
+        m = mocker.patch('app.strava.tasks.generate_report')
+        response = test_client.post(
+            url='/strava/athletes/2/process_activity',
+            cookies={'jwt_token': jwt_token_admin},
+            json=dict(id=1337))
+
+        assert response.status_code == 202
+        athlete = await StravaAthlete.objects.get(id=2)
+        m.assert_called_once_with(athlete, 1337)
+
+    @pytest.mark.asyncio
+    async def test_process_activity_unauthorized(self, test_client, jwt_token_not_admin):
+        response = test_client.post(
+            url='/strava/athletes/1/process_activity',
+            cookies={'jwt_token': jwt_token_not_admin},
+            json=dict(id=1337))
+
+        assert response.status_code == 403

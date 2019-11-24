@@ -27,3 +27,7 @@ class Event(BaseModel):
     owner_id: int
     subscription_id: int
     updates: Updates
+
+
+class Activity(BaseModel):
+    id: int

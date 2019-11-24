@@ -19,10 +19,15 @@ async def handle_event(event):
         return
 
     athlete = await StravaAthlete.objects.get(id=event.owner_id)
+
+    await process_activity(athlete, event.object_id)
+
+
+async def process_activity(athlete, activity_id):
     if athlete.token_expiration_datetime < datetime.now() + timedelta(minutes=5):
         athlete = await refresh_access_token(athlete)
 
-    generate_report(athlete, event.object_id)
+    generate_report(athlete, activity_id)
 
 
 async def new_athlete(athlete):

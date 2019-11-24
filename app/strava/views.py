@@ -13,8 +13,8 @@ from ..config import APP_URL, STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET
 from ..main import app
 from ..reports.utils import get_or_create_athlete_dir
 from .models import StravaAthlete
-from .schemas import Event
-from .tasks import handle_event, new_athlete
+from .schemas import Activity, Event
+from .tasks import handle_event, new_athlete, process_activity
 from .utils import refresh_access_token
 
 
@@ -146,3 +146,13 @@ async def delete_strava_athletes(strava_athlete_id: int, admin: bool = Depends(i
     await strava_athlete.delete()
 
     return strava_athlete
+
+
+@app.post('/strava/athletes/{strava_athlete_id}/process_activity', status_code=202)
+async def post_process_activity(activity: Activity, strava_athlete_id: int,
+                           background_task: BackgroundTasks, admin: bool = Depends(is_admin)):
+    strava_athlete = await StravaAthlete.objects.get(id=strava_athlete_id)
+
+    background_task.add_task(process_activity, strava_athlete, activity.id)
+
+    return {'message': 'ok'}
