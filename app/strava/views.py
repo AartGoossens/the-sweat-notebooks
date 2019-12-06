@@ -11,7 +11,6 @@ from stravalib import Client, exc as stravalib_exceptions
 from ..auth import create_jwt_token, is_admin
 from ..config import APP_URL, STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET
 from ..main import app
-from ..reports.utils import get_or_create_athlete_dir
 from .models import StravaAthlete
 from .schemas import Activity, Event
 from .tasks import handle_event, new_athlete, process_activity
@@ -48,7 +47,6 @@ async def strava_callback(background_task: BackgroundTasks, code: str, scope: st
             token_expiration_datetime=datetime.utcfromtimestamp(token_response['expires_at']).isoformat())
 
         background_task.add_task(new_athlete, strava_athlete)
-        get_or_create_athlete_dir(strava_athlete)
     
     response = RedirectResponse('/reports')
     jwt_token = create_jwt_token(sub=strava_athlete.id)
@@ -139,9 +137,6 @@ async def delete_strava_athletes(strava_athlete_id: int, admin: bool = Depends(i
         strava_athlete = await refresh_access_token(strava_athlete)
         client = Client(strava_athlete.access_token)
         client.deauthorize()
-
-    athlete_dir = get_or_create_athlete_dir(strava_athlete)
-    shutil.rmtree(athlete_dir)
 
     await strava_athlete.delete()
 

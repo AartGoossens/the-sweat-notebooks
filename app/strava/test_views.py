@@ -1,4 +1,6 @@
 from dataclasses import dataclass
+
+import asynctest
 import pytest
 from starlette.testclient import TestClient
 
@@ -141,21 +143,21 @@ class TestStravaViews:
     @pytest.mark.asyncio
     async def test_strava_webhook(self, test_client, mocker):
         # @TODO figure out why it has to be mocked like this, not reports.utils.generate_report
-        m = mocker.patch('app.strava.tasks.generate_report')
-        response = test_client.post(
-            '/strava/webhook',
-            json={
-                'aspect_type': 'update',
-                'event_time': 1516126040,
-                'object_id': 1360128428,
-                'object_type': 'activity',
-                'owner_id': 2,
-                'subscription_id': 120475,
-                'updates': {
-                    'title': 'Messy'
+        with asynctest.patch('app.strava.tasks.generate_report') as m:
+            response = test_client.post(
+                '/strava/webhook',
+                json={
+                    'aspect_type': 'update',
+                    'event_time': 1516126040,
+                    'object_id': 1360128428,
+                    'object_type': 'activity',
+                    'owner_id': 2,
+                    'subscription_id': 120475,
+                    'updates': {
+                        'title': 'Messy'
+                    }
                 }
-            }
-        )
+            )
         
         assert response.status_code == 200
         assert response.json() == {'message': 'ok'}
@@ -277,11 +279,11 @@ class TestStravaViews:
 
     @pytest.mark.asyncio
     async def test_process_activity(self, test_client, mocker, jwt_token_admin):
-        m = mocker.patch('app.strava.tasks.generate_report')
-        response = test_client.post(
-            url='/strava/athletes/2/process_activity',
-            cookies={'jwt_token': jwt_token_admin},
-            json=dict(id=1337))
+        with asynctest.patch('app.strava.tasks.generate_report') as m:
+            response = test_client.post(
+                url='/strava/athletes/2/process_activity',
+                cookies={'jwt_token': jwt_token_admin},
+                json=dict(id=1337))
 
         assert response.status_code == 202
         athlete = await StravaAthlete.objects.get(id=2)

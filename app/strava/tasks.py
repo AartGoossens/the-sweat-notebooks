@@ -27,7 +27,7 @@ async def process_activity(athlete, activity_id):
     if athlete.token_expiration_datetime < datetime.now() + timedelta(minutes=5):
         athlete = await refresh_access_token(athlete)
 
-    generate_report(athlete, activity_id)
+    await generate_report(athlete, activity_id)
 
 
 async def new_athlete(athlete):
@@ -42,6 +42,6 @@ async def new_athlete(athlete):
         if athlete.token_expiration_datetime < datetime.now() + timedelta(minutes=5):
             athlete = await refresh_access_token(athlete)
 
-        generate_report(athlete, activity.id)
+        await generate_report(athlete, activity.id)
 
     await athlete.update(backfilled=True)

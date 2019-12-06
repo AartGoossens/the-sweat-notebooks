@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from pathlib import Path
 
+import asynctest
 import pytest
 
 from .. import config
@@ -11,9 +12,6 @@ from .schemas import Event
 
 @pytest.mark.asyncio
 async def test_handle_event(mocker):
-
-    mocked_generate_report = mocker.patch('app.strava.tasks.generate_report')
-
     event = Event(
         aspect_type='update',
         event_time=1516126040,
@@ -24,7 +22,8 @@ async def test_handle_event(mocker):
         updates=dict(title='Messy')
     )
 
-    await tasks.handle_event(event)
+    with asynctest.patch('app.strava.tasks.generate_report') as mocked_generate_report:
+        await tasks.handle_event(event)
 
     athlete = await StravaAthlete.objects.get(id=event.owner_id)
 
@@ -60,12 +59,12 @@ async def test_new_athlete(mocker):
         id: int
 
     mocked_get_activities.return_value = [StravaActivity(1337)]
-    mocked_generate_report = mocker.patch('app.strava.tasks.generate_report')
 
     strava_athlete = await StravaAthlete.objects.get(id=1)
     assert strava_athlete.backfilled == False
 
-    await tasks.new_athlete(strava_athlete)
+    with asynctest.patch('app.strava.tasks.generate_report') as mocked_generate_report:
+        await tasks.new_athlete(strava_athlete)
 
     mocked_get_activities.assert_called_once_with(limit=config.STRAVA_BACKFILL_COUNT)
     mocked_generate_report.assert_called_once_with(strava_athlete, 1337)

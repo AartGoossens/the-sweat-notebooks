@@ -7,15 +7,17 @@ verify_ssl = true
 requests = "*"
 pytest = "*"
 pytest-asyncio = "*"
+pytest-mock = "*"
 nest-asyncio = "*"
 ipython = "*"
 ipdb = "*"
+jupyter = "*"
+asynctest = "*"
 
 [packages]
 fastapi = "*"
 uvicorn = "*"
 stravalib = "*"
-pytest-mock = "*"
 sqlalchemy = "*"
 typesystem = "*"
 orm = "~=0.1"
@@ -26,6 +28,7 @@ nbconvert = "*"
 jinja2 = "*"
 aiofiles = "*"
 pyjwt = "*"
+nteract-scrapbook = "*"
 
 [requires]
 python_version = "3.7"
