@@ -1,7 +1,8 @@
 import sqlalchemy
 
 from .config import database, metadata
-from .strava import models
+from .reports import models as report_models
+from .strava import models as strava_models
 
 
 engine = sqlalchemy.create_engine(str(database.url))

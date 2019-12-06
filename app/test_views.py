@@ -39,4 +39,4 @@ class TestViews:
 
         assert response.status_code == 200
         assert response.headers['content-type'] == 'image/png'
-        assert response.headers['content-length'] == '8091'
+        assert response.headers['content-length'] == '1124'

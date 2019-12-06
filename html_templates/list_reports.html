@@ -12,7 +12,7 @@
 
 {% for report in reports %}
     <li>
-        <a href="/reports/{{ athlete_id }}/{{ report }}">{{ report }}</a>
+        <a href="/reports/{{ athlete_id }}/{{ report.html_filename }}">{{ report.title }} ({{ report.datetime }})</a>
     </li>
 {% endfor %}
 </ul>
