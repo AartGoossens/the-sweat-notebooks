@@ -13,7 +13,7 @@ def logout():
 @app.get('/about')
 def home(request: Request):
     return templates.TemplateResponse(
-        "home.html",
+        "about.html",
         context={"request": request})
 
 
