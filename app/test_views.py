@@ -13,7 +13,15 @@ class TestViews:
         return TestClient(app)
 
     def test_home(self, test_client):
-        response = test_client.get('/')
+        response = test_client.get(
+            url='/',
+            allow_redirects=False)
+
+        assert response.status_code == 307
+        assert response.headers['location'] == '/reports'
+
+    def test_about(self, test_client):
+        response = test_client.get('/about')
 
         assert response.status_code == 200
         assert '<i>Sweaty Reports</i> is an application' in response.text
