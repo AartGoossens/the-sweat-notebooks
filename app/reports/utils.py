@@ -25,14 +25,17 @@ async def generate_report(athlete, activity_id):
     notebook_path = Path(output_dir, notebook_filename)
     html_path = Path(output_dir, html_filename)
 
-    papermill.execute_notebook(
-        input_path=input_path.as_posix(),
-        output_path=notebook_path.as_posix(),
-        parameters=dict(
-            access_token=athlete.access_token,
-            activity_id=activity_id
+    try:
+        papermill.execute_notebook(
+            input_path=input_path.as_posix(),
+            output_path=notebook_path.as_posix(),
+            parameters=dict(
+                access_token=athlete.access_token,
+                activity_id=activity_id
+            )
         )
-    )
+    except papermill.exceptions.PapermillExecutionError:
+        pass
 
     nb = sb.read_notebook(notebook_path.as_posix())
     start_date_local = nb.scraps['activity_detail'].data['start_date_local']
@@ -46,7 +49,6 @@ async def generate_report(athlete, activity_id):
         datetime=dt,
         notebook_filename=notebook_filename,
         html_filename=html_filename)
-
 
     with notebook_path.open('r') as f:
         notebook = nbformat.reads(f.read(), as_version=4)
