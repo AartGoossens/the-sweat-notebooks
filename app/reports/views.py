@@ -13,13 +13,13 @@ from ..strava.models import StravaAthlete
 
 @app.get('/reports/{athlete_id}/{html_filename}')
 def retrieve_report(athlete_id, html_filename):
-    with Path(REPORT_OUTPUT_DIR, html_filename).open() as f:
+    with Path(REPORT_OUTPUT_DIR, athlete_id, html_filename).open() as f:
         html = f.read()
 
     return HTMLResponse(content=html, status_code=200)
 
 
-@app.get('/reports')
+@app.get('/reports/')
 def reports_root(auth: dict = Depends(jwt_cookie_authentication)):
     # @TODO add admin login to see all available athletes
     if not auth['is_authenticated']:

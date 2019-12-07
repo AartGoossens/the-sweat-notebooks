@@ -9,7 +9,7 @@ database:
 
 clean:
 	sudo rm -rf data/
-	mkdir data
+	mkdir -p data/reports
 	make database
 
 build_test:
