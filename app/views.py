@@ -5,8 +5,12 @@ from starlette.staticfiles import StaticFiles
 from .config import templates
 from .main import app
 
-
 @app.get('/')
+def logout():
+    response = RedirectResponse('/reports')
+    return response
+
+@app.get('/about')
 def home(request: Request):
     return templates.TemplateResponse(
         "home.html",
