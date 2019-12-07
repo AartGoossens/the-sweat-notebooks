@@ -29,6 +29,9 @@ jinja2 = "*"
 aiofiles = "*"
 pyjwt = "*"
 nteract-scrapbook = "*"
+sweat = "*"
+matplotlib = "*"
+pandas = "*"
 
 [requires]
 python_version = "3.7"
