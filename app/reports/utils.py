@@ -5,6 +5,7 @@ import nbformat
 import papermill
 import scrapbook as sb
 from nbconvert import HTMLExporter
+from traitlets.config import Config
 
 from .models import Report
 from ..config import (
@@ -52,7 +53,15 @@ async def generate_report(athlete, activity_id):
 
     with notebook_path.open('r') as f:
         notebook = nbformat.reads(f.read(), as_version=4)
-    html_exporter = HTMLExporter()
+
+    c = Config()
+    c.TagRemovePreprocessor.enabled = True
+    c.TagRemovePreprocessor.remove_cell_tags = ("remove_cell", "parameters", "injected-parameters")
+    c.TagRemovePreprocessor.remove_all_outputs_tags = ('remove_output',)
+    c.TagRemovePreprocessor.remove_input_tags = ('remove_input',)
+    c.preprocessors = ["TagRemovePreprocessor"]
+
+    html_exporter = HTMLExporter(config=c)
     html_exporter.template_file = 'full'
     body, _ = html_exporter.from_notebook_node(notebook)
 
