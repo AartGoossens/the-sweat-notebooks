@@ -1,6 +1,6 @@
-# Sweaty Reports
+# The Sweat Notebooks
 
-*Sweaty Reports* is an application that gives you reports about your Strava activities. The reports are generated from parametrized Jupyter notebooks.
+*The Sweat Notebooks* is an application that gives you reports about your Strava activities. The reports are generated from parametrized Jupyter notebooks.
 
 I developed this application as a side project because I wanted to try to combine a few technologies:
 
