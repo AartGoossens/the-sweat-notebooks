@@ -24,7 +24,7 @@ class TestViews:
         response = test_client.get('/about')
 
         assert response.status_code == 200
-        assert '<i>Sweaty Reports</i> is an application' in response.text
+        assert '<i>The Sweat Notebooks</i> is an application' in response.text
 
     def test_login(self, test_client):
         response = test_client.get('/login')

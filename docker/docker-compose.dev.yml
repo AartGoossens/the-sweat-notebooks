@@ -2,8 +2,8 @@ version: '3.7'
 
 services:
   app:
-    image: sweaty-reports-dev
-    container_name: sweaty-reports-dev
+    image: the-sweat-notebooks-dev
+    container_name: the-sweat-notebooks-dev
     build:
       context: ..
       dockerfile: docker/Dockerfile.dev

@@ -2,8 +2,8 @@ version: '3.7'
 
 services:
   app:
-    image: sweaty-reports-test
-    container_name: sweaty-reports-test
+    image: the-sweat-notebooks-test
+    container_name: the-sweat-notebooks-test
     build:
       context: ..
       dockerfile: docker/Dockerfile.test

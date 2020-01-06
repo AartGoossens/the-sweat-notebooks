@@ -17,7 +17,7 @@ build_test:
 
 test: build_test
 	docker-compose -f docker/docker-compose.test.yml up -V -d
-	docker attach sweaty-reports-test
+	docker attach the-sweat-notebooks-test
 
 build_prod:
 	docker-compose -f docker/docker-compose.prod.yml build
