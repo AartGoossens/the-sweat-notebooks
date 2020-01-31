@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% set title = "Reports" %}
 {% block content %}
-<ul>
 {% if athlete_backfilled == False %}
     <font color="red">
         Your Strava activities are still being processed in the background.
@@ -10,10 +9,22 @@
     <br><br>
 {% endif %}
 
-{% for report in reports %}
-    <li>
-        <a href="/reports/{{ athlete_id }}/{{ report.html_filename }}">{{ report.datetime }} {{ report.title }}</a>
-    </li>
-{% endfor %}
-</ul>
+<article class="pa3 pa5-ns">
+    <ul class="list pl0 ml0 center ba br2">
+        {% for report in reports %}
+        <li class="ph3 pv1 bb">
+            <a href="/reports/{{ athlete_id }}/{{ report.html_filename }}">
+                <article class="link hover-dark-red black cf">
+                    <div class="fl w-100 w-70-ns tl truncate">
+                        <p class="f5">{{ report.title }}</p>
+                    </div>
+                    <div class="fl w-100 w-30-ns tr">
+                        <p class="f5">{{ report.datetime }}</p>
+                    </div>
+                </article>
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+</article>
 {% endblock %}
