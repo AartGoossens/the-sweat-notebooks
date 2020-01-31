@@ -14,4 +14,4 @@ COPY . /app/
 
 EXPOSE 80
 
-CMD gunicorn app:app -w 3 -t 600 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:80
+CMD gunicorn app:app -w 3 -t 1200 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:80
